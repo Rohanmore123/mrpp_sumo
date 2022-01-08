@@ -68,6 +68,7 @@ class LEDGE:
                     if abs(tr - est) > 1:
                         self.est_idle[n][self.current_node[n]][data.node_id[i]] = ((count - 1) * self.est_idle[n][self.current_node[n]][data.node_id[i]] + self.idleness[data.node_id[i]]) / count
                         self.q_val[n][self.current_node[n]][data.node_id[i]] += np.sign(tr - est)
+
                     self.error_file.write('{},{},{},{},{}\n'.format(self.stamp, data.node_id[i], n, self.est_idle[n][self.current_node[n]][data.node_id[i]], self.idleness[data.node_id[i]]))
                 self.idleness[data.node_id[i]] = 0.
                 

@@ -71,7 +71,7 @@ class Multi_Q:
         self.best_len = np.inf
         self.best_walk_directions = []
         self.best_walk_edges = []
-        self.robs = 0
+        self.robs = np.inf
         self.init_plot()    
 
     def init_plot(self):
@@ -132,6 +132,8 @@ class Multi_Q:
         edges_in_run = {}
 
         while not (all(in_degree) and all(out_degree)):
+            # print(in_degree, out_degree, actions, edges_in_run)
+            # print('--------')
             values = [(self.graph[act[0]][act[1]]['q_value'] ** self.delta) * (self.graph[act[0]][act[1]]['h_value'] ** self.beta) for act in actions]
             tot_val = sum(values)
             values = [v/tot_val for v in values]
@@ -163,6 +165,27 @@ class Multi_Q:
                 if (n, act[1]) in actions:
                     actions.remove((n, act[1]))
 
+            # if (act[1], act[1]) in actions:
+            #     actions.remove((act[1], act[1]))
+
+
+
+
+            # path = self.paths[act]
+            # if len(path) > 2:
+            #     for i in range(1, len(path) - 1):
+            #         out_degree[self.nodes.index(path[i])] = True
+            #         in_degree[self.nodes.index(path[i])] = True
+            #         for n in self.graph.successors(path[i]):
+            #             if (path[i], n) in actions:
+            #                 actions.remove((path[i], n))
+
+            #         for n in self.graph.predecessors(path[i]):
+            #             if (n, path[i]) in actions:
+            #                 actions.remove((n, path[i]))
+            # # for i in range(len(path) - 1):
+            # #     edges_in_run[path[i]] = (path[i], path[i + 1])
+
             if actions:
                 next_val = max([self.graph[nex[0]][nex[1]]['q_value'] for nex in actions])
                 self.graph[act[0]][act[1]]['q_value'] *= (1 - self.alpha)
@@ -172,25 +195,27 @@ class Multi_Q:
     
 
     def cost_of_walks(self, edg):
+        # print(edg)
         remain_edges = edg.copy()
-        edge_sets = []
+        edge_sets = [] 
         edge_lens = []
         cur_edges = []
         cur_len = 0
-        robots = 0
+        robots = []
         nodes_rem = self.nodes.copy()
         while nodes_rem:
             if len(cur_edges) == 0:
-                start_node = nodes_rem.pop(0)
+                start_node = nodes_rem[0]
                 cur_edges.append(remain_edges[start_node])
                 cur_node = cur_edges[-1][1]
                 cur_len += self.graph[cur_edges[-1][0]][cur_edges[-1][1]]['length'] 
             else:
                 if cur_node == start_node:
+                    nodes_rem.remove(cur_node)
                     edge_sets.append(cur_edges)
                     edge_lens.append(cur_len)
                     cur_edges = []
-                    robots += np.ceil(cur_len/self.time_period)
+                    robots.append(np.ceil(cur_len/self.time_period))
                     cur_len = 0
                 else:
                     nodes_rem.remove(cur_node)
@@ -198,7 +223,7 @@ class Multi_Q:
                     cur_node = cur_edges[-1][-1]
                     cur_len += self.graph[cur_edges[-1][0]][cur_edges[-1][1]]['length']
 
-
+        # print(edge_sets, edge_lens, robots)
         return edge_sets, edge_lens, robots
 
     def episode(self, ep_count):
@@ -218,17 +243,18 @@ class Multi_Q:
             es, ls, rob = self.cost_of_walks(edges_run)
 
             cost = 0
-            for c in ls:
-                cost += (np.ceil(c/self.time_period) * self.time_period - c) ** 2
-            cost += rob ** 2
+            for i, c in enumerate(ls):
+                cost += (rob[i] * self.time_period - c) ** 2
+            cost *= sum(rob) ** 2
+            
             walks.append(es)
             lens.append(ls)
             costs.append(cost)
-            robs.append(rob)
+            robs.append(sum(rob))
 
-        iter_best_walk = walks[np.argmin(costs)]
-        iter_best = min(costs)
-        iter_best_count = robs[np.argmin(costs)]
+        iter_best_walk = walks[np.argmin(robs)]
+        iter_best_count = min(robs)
+        iter_best = costs[np.argmin(robs)]
         iter_best_edges = []
         for w in iter_best_walk:
             # if len(w) != 1:
@@ -238,7 +264,7 @@ class Multi_Q:
                     iter_best_edges.append((path[j], path[j + 1]))
 
 
-        if iter_best < self.best_len:
+        if iter_best_count < self.robs or (iter_best_count == self.robs and iter_best < self.best_len):
             self.best_len = iter_best
             self.best_walk = iter_best_walk
             self.best_walk_directions = iter_best_edges
@@ -254,7 +280,7 @@ class Multi_Q:
                     else:
                         self.best_walk_edges.append((i[1], i[0]))
 
-        del_aq = self.W/(iter_best + 1)
+        del_aq = len(self.nodes)/(iter_best_count)
         edge_counts = {tuple(e): 0 for e in self.edges_plot}
         for walk in walks:
             for circuit in walk:
@@ -272,19 +298,20 @@ class Multi_Q:
  
         if ep_count % 10 == 0:
             max_count = max(list(edge_counts.values()))
-
             edge_traces = self.edge_traces.copy()
-
 
             for i in range(len(self.edges_plot)):
                 edge_traces[i].line.width = 1
                 edge_traces[i].line.color = 'white'
-                edge_traces[i].opacity = min(edge_counts[tuple(self.edges_plot[i])]/max_count, 1)
-                if tuple(self.edges_plot[i]) in self.best_walk_edges:
-                    edge_traces[i].line.color = 'orange'
-                    edge_traces[i].opacity = 1
-                edge_traces[i].line.width = 4
-            
+                if max_count > 0:
+                    edge_traces[i].opacity = min(edge_counts[tuple(self.edges_plot[i])]/max_count, 1)
+                    if tuple(self.edges_plot[i]) in self.best_walk_edges:
+                        edge_traces[i].line.color = 'orange'
+                        edge_traces[i].opacity = 1
+                    edge_traces[i].line.width = 4
+                else:
+                    edge_traces[i].opacity = 0.
+
             fig = go.Figure(data=[self.node_trace] + edge_traces,
                 layout=go.Layout(
                 title='Graph \'{}\', Episode - {}, Robots - {}'.format(graph_name, ep_count, self.robs),
@@ -317,7 +344,7 @@ if __name__ == '__main__':
     num_threads = int(params['num_threads'])
     algo = params['algo_name']
     sim_name = params['random_string']
-    time_period = float(params['time_period'])
+    time_period = float(params['time_period']) * 10. #velocity assumed to be 10 m/s
     sim_dir = dirname + '/outputs/' + sim_name
     os.mkdir(sim_dir)
 
