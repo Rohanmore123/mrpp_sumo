@@ -84,14 +84,37 @@ def cost_walk(tsp_path, graph, node_weights, num_robots):
     for n in walk_nodes:
         val = latency_nodes[n].pop(0)
         latency_nodes[n][-1] += val
-        for i in range(latency_nodes[n]):
+        for i in range(len(latency_nodes[n])):
             latency_nodes[n][i] = min(latency_nodes[n][i], len_walk/num_robots)
         cost_nodes[n] = node_weights[n] * max(latency_nodes[n])
     return max(cost_nodes.values())
 
+def approximation_algorithm(graph, vertex_latency):
+    '''
+    Approximation Algorithm function
+    '''
+    r_max = max(vertex_latency.values())
+    r_min = min(vertex_latency.values())
+    rho = r_max/r_min
+    if math.log2(rho) % 1 == 0:
+        rho += 1
+    walks = []
+    node_groups = []
+    for i in range(int(math.ceil(math.log2(rho)))):
+        lw = r_min * math.pow(2, i)
+        hw = r_min * math.pow(2, (i + 1))
+        node_groups.append([])
+        for n, w in vertex_latency.items():
+            if lw <= w and w < hw:
+                node_groups[-1].append(n)
+    
+    # for i in range(int(math.ceil(math.log2(rho)))):
+
+    pass
+
 def latency_walks(graph, vertex_weights, num_robots):
     '''
-    Latency walk function
+    Latency Walk function
     '''
 
     gc, paths = complete_graph(graph)
@@ -124,7 +147,11 @@ def latency_walks(graph, vertex_weights, num_robots):
                 node_robots[-1].extend(node_groups[i])
             if len(node_robots[-1]) > 0:
                 gs = gc.subgraph(node_robots[-1])
+                print (nx.is_strongly_connected(gs))
                 node_weights = {n: vertex_weights[n] for n in node_robots[-1]}
+                weight_max = max(node_weights.values())
+                for n in node_weights.keys():
+                    node_weights[n] /= weight_max
                 walk_robots.append([pm1.minmax_latency_one_robot(gs, node_weights), 1])
                 assigned_robots += 1
 
@@ -153,4 +180,6 @@ def latency_walks(graph, vertex_weights, num_robots):
 
     return walks_div
 
-        
+
+
+

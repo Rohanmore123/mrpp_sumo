@@ -18,8 +18,16 @@ import math
 
 def expand_walk(paths, walk):
     walk_e = [walk[0]]
+    i = 0
+    while i < len(walk):
+        if walk[i] == walk[(i + 1) % len(walk)]:
+            walk.pop(i)
+        else:
+            i += 1
+            
     for i in range(1, len(walk)):
         walk_e.extend(paths[(walk[i - 1], walk[i])][1:])
+        
     walk_e.extend(paths[(walk[len(walk) - 1], walk[0])][1:])
     return walk_e[:-1]
 
@@ -59,6 +67,9 @@ def partition_path(graph, path, partitions):
         return part_a
 
 def minmax_latency_one_robot(graph, node_weights):
+    '''
+    Beh jao
+    '''
     SA_tsp = nx.algorithms.approximation.simulated_annealing_tsp
     tsp = nx.algorithms.approximation.traveling_salesman_problem
     sa_tsp = lambda graph, wt: SA_tsp(graph, "greedy", weight = wt, temp = 500)
@@ -104,4 +115,5 @@ def minmax_latency_wrapper(graph, node_weights):
     '''
     gc, paths = complete_graph(graph)
     walk_gc = minmax_latency_one_robot(gc, node_weights)
+    print(len(walk_gc))
     return expand_walk(paths, walk_gc)
