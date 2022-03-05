@@ -1,0 +1,12 @@
+use_sim_time: true
+graph: iitb
+init_bots: 1
+priority_nodes: 4369058864 5366445083 3215340463 667357382 -266
+time_periods: 193.01923579533718 193.01923579533718 193.01923579533718 193.01923579533718 193.01923579533718
+init_locations: '5366445083'
+done: false
+sim_length: 20000
+random_string: through_modified_basic_iitb_101_d0
+algo_name: through_modified_basic
+coefficients: 1 10 0 0
+depth: 0

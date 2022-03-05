@@ -1,0 +1,12 @@
+use_sim_time: true
+graph: cair
+init_bots: 3
+priority_nodes: 1563324353 1563324324 1563324336 414035791 cluster_1563324004_1563324334
+time_periods: 48.02789561393829 48.02789561393829 48.02789561393829 48.02789561393829 48.02789561393829
+init_locations: '1563324336 cluster_1563324004_1563324334 1563324324'
+done: false
+sim_length: 20000
+random_string: through_modified_FHUM_cair_55_d0
+algo_name: through_modified_FHUM
+coefficients: 1 10 0 0
+depth: 0

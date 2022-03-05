@@ -1,0 +1,12 @@
+algo_name: through_modified_FHUM
+coefficients: 1 10 0 0
+depth: 5
+done: false
+graph: grid_5_5
+init_bots: 2
+init_locations: 23 20
+priority_nodes: 22 20 16 15 23 3
+random_string: through_modified_FHUM_grid_5_5_10_d5
+sim_length: 20000
+time_periods: 60.0 60.0 60.0 60.0 60.0 60.0
+use_sim_time: true

@@ -1,0 +1,12 @@
+algo_name: through_modified_basic
+coefficients: 1 10 0 0
+depth: 3
+done: false
+graph: grid_5_5
+init_bots: 1
+init_locations: '24'
+priority_nodes: 24 10 4 12 2 15
+random_string: through_modified_basic_grid_5_5_45_d3
+sim_length: 20000
+time_periods: 40.0 40.0 40.0 40.0 40.0 40.0
+use_sim_time: true

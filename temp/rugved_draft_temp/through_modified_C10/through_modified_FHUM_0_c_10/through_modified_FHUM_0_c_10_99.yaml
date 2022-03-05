@@ -1,0 +1,12 @@
+use_sim_time: true
+graph: iitb
+init_bots: 3
+priority_nodes: 5882320075 cluster_-172_5366445082 5366445083 -222
+time_periods: 188.35095049039631 188.35095049039631 188.35095049039631 188.35095049039631
+init_locations: '-222 cluster_-172_5366445082 5882320075'
+done: false
+sim_length: 20000
+random_string: through_modified_FHUM_iitb_99_d0
+algo_name: through_modified_FHUM
+coefficients: 1 10 0 0
+depth: 0

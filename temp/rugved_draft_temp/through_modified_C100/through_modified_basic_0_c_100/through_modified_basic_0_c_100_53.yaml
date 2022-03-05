@@ -1,0 +1,13 @@
+algo_name: through_modified_basic
+coefficients: 1, 100, 0, 0
+depth: 0
+done: false
+graph: cair
+init_bots: 1
+init_locations: '1563324324'
+priority_nodes: 1563324353 1563324324 1563324336 414035791 cluster_1563324004_1563324334
+random_string: through_modified_basic_cair_53_d0
+sim_length: 20000
+time_periods: 48.02789561393829 48.02789561393829 48.02789561393829 48.02789561393829
+  48.02789561393829
+use_sim_time: true

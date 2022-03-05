@@ -1,0 +1,12 @@
+use_sim_time: true
+graph: grid_5_5
+init_bots: 1
+priority_nodes: 6 15 24 0 11 17
+time_periods: 80.0 80.0 80.0 80.0 80.0 80.0
+init_locations: '6'
+done: false
+sim_length: 20000
+random_string: through_modified_basic_grid_5_5_81_d0
+algo_name: through_modified_basic
+coefficients: 1 10 0 0
+depth: 0

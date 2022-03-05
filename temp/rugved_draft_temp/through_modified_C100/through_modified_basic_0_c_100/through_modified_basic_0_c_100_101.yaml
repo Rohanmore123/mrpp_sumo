@@ -1,0 +1,13 @@
+algo_name: through_modified_basic
+coefficients: 1, 100, 0, 0
+depth: 0
+done: false
+graph: iitb
+init_bots: 1
+init_locations: '5366445083'
+priority_nodes: 4369058864 5366445083 3215340463 667357382 -266
+random_string: through_modified_basic_iitb_101_d0
+sim_length: 20000
+time_periods: 193.01923579533718 193.01923579533718 193.01923579533718 193.01923579533718
+  193.01923579533718
+use_sim_time: true

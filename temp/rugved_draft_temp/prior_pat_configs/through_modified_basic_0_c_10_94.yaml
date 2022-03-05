@@ -1,0 +1,12 @@
+use_sim_time: true
+graph: cair
+init_bots: 2
+priority_nodes: 1563324353 1154147728 1563324344 1563324349 414035791 1563324336
+time_periods: 33.2339870772105 33.2339870772105 33.2339870772105 33.2339870772105 33.2339870772105 33.2339870772105
+init_locations: '1563324344 1563324353'
+done: false
+sim_length: 20000
+random_string: through_modified_basic_cair_94_d0
+algo_name: through_modified_basic
+coefficients: 1 10 0 0
+depth: 0

@@ -1,0 +1,12 @@
+algo_name: through_modified_FHUM
+coefficients: 1 10 0 0
+depth: 3
+done: false
+graph: iitb
+init_bots: 2
+init_locations: 667357419 2055461156
+priority_nodes: 667357419 667357382 4369058864 2055461156
+random_string: through_modified_FHUM_iitb_26_d3
+sim_length: 20000
+time_periods: 244.0719746939115 244.0719746939115 244.0719746939115 244.0719746939115
+use_sim_time: true
