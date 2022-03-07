@@ -16,7 +16,8 @@ def expand_walk(paths, walk):
     walk_e = [walk[0]]
     for i in range(1, len(walk)):
         walk_e.extend(paths[(walk[i - 1], walk[i])][1:])
-    return walk_e
+    walk_e.extend(paths[(walk[-1], walk[0])][1:])
+    return walk_e[:-1]
 
 def complete_graph(graph):
     '''

@@ -23,7 +23,7 @@ else:
     file_str = 'prior_pat_configs'
     dirname += '/config/'
 
-    os.mkdir(dirname + alg_name)
+
     conf_files = glob.glob(dirname + file_str + '/{}*'.format(file_str))
 
     i = 0
@@ -32,8 +32,13 @@ else:
         with open(c, 'r') as f:
             p = yaml.safe_load(f)
         p['algo_name'] = alg_name
-        p['parameters'] = parameters
-        with open(dirname + alg_name + '/{}_{}.yaml'.format(alg_name, i), 'w') as f:
+        p['parameters'] = ' '.join(parameters)
+        name_add = '_'.join(parameters)
+        p['random_string'] = alg_name + '_' + name_add + '_' + str(i)
+        dir_path = dirname + alg_name + '_' + name_add
+        if not os.path.isdir(dir_path):
+            os.mkdir(dir_path)
+        with open(dirname + alg_name + '_' + name_add + '/{}.yaml'.format(p['random_string']), 'w') as f:
             cur = yaml.dump(p, f)
         i += 1
     

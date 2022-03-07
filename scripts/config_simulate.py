@@ -6,12 +6,13 @@ import rospkg
 import glob
 import rosparam
 
-# missed = [175,169,163,157,151,115,109,103,55,49,43,37]
+missed = [81]
 dir_name = rospkg.RosPack().get_path('mrpp_sumo')
-config_files = glob.glob(dir_name + '/config/ag3*.yaml')
+config_files = glob.glob(dir_name + '/config/latency_walks*/*.yaml')
 count = 0
 for conf in config_files:
 # for i in missed:
+#     conf = dir_name + '/config/latency_walks_2/latency_walks_2_{}.yaml'.format(i)
     params = rosparam.load_file(conf)[0][0]
     os.system('xterm -e "{}/tpbp.sh" {} {}'.format(dir_name, conf, params['algo_name']))
     name = conf.split('/')[-1].split('.')[0]

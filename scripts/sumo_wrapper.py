@@ -27,7 +27,7 @@ class Sumo_Wrapper:
     def __init__(self, graph, output_file, output_file1):
         self.graph = graph
         self.edge_nodes = {}
-        for e in self.graph.edges:
+        for e in self.graph.edges():
             self.edge_nodes[self.graph[e[0]][e[1]]['name']] = e
         self.stamp = 0.
         self.robots = []
@@ -48,11 +48,13 @@ class Sumo_Wrapper:
         if not req.name in self.robots:
             self.robot_add.append((req.name, self.stamp))
             node = req.node
-            if not node in self.graph.nodes:
+            if not node in self.graph.nodes():
                 print ("Node not specified, assigning a node at random")
                 node = rn.sample(list(self.graph.nodes), 1)[0]
             rospy.wait_for_service('bot_next_task')
             task_update = self.next_task_service(self.stamp, req.name, node)
+            while (task_update.task[0], task_update.task[1]) not in list(self.graph.edges()):
+                task_update = self.next_task_service(self.stamp, req.name, task_update.task[1]) 
             route = []
             departs = []
             for i in range(len(task_update.task) - 1):
