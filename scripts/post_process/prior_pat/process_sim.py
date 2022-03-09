@@ -20,9 +20,9 @@ def main(string):
         print ('{} Done'.format(count))
 
 if __name__ == '__main__':
-    post=['through_modified_FHUM_3_c_100', 'through_modified_FHUM_5_c_100']
+    post=['through_modified_FHUM_0_c_100', 'through_modified_FHUM_3_c_100', 'through_modified_FHUM_5_c_100']
     # for i in post:
     #     main(i)
     #using 6 cores for processing 
-    with Pool(4) as p:
+    with Pool(3) as p:
         p.map(main,post)
