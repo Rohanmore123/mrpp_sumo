@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 '''
-Go to the neighbouring node
+Go to the neighbouring node (epsilon - greedy)
 Share intent - account for intent via idleness
 
 Agents' idleness estimate is equal to true idleness based on edge weight and expected visit instance of other bots
