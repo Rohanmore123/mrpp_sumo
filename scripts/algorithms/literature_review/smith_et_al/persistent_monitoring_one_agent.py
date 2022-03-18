@@ -104,9 +104,12 @@ def minmax_latency_one_robot(graph, node_weights):
     for n in nodes:
         s_walks[2*i - 1].append(n)
         i += 1
-    walk = []
-    for i in range(t):
-        walk.extend(s_walks[i])
+    walk = s_walks[0].copy()
+    for i in range(1, t):
+        if walk[-1] == s_walks[i][0]:
+            walk.extend(s_walks[i][1:])
+        else:
+            walk.extend(s_walks[i])
     return walk
 
 def minmax_latency_wrapper(graph, node_weights):

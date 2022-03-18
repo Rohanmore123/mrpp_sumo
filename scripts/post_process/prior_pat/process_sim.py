@@ -20,7 +20,7 @@ def main(string):
         print ('{} Done'.format(count))
 
 if __name__ == '__main__':
-    post=['through_modified_FHUM_0_c_100', 'through_modified_FHUM_3_c_100', 'through_modified_FHUM_5_c_100']
+    post=['through_modified_FHUM_0_c_10', 'through_modified_FHUM_3_c_10', 'through_modified_FHUM_5_c_10']
     # for i in post:
     #     main(i)
     #using 6 cores for processing 

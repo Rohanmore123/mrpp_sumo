@@ -66,6 +66,7 @@ def cost_walk(tsp_path, graph, node_weights, num_robots):
     '''
     Returns the cost of walk 
     '''
+    print(tsp_path)
     walk_nodes = set(tsp_path)
     walk_temp  = tsp_path.copy()
     walk_temp.extend(tsp_path)
