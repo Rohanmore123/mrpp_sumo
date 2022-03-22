@@ -15,16 +15,17 @@ import rospkg
 import numpy as np
 import rospy
 import networkx as nx
-import configparser as CP
 from mrpp_sumo.srv import NextTaskBot, NextTaskBotResponse
+from mrpp_sumo.srv import AlgoReady, AlgoReadyResponse
 from mrpp_sumo.msg import AtNode 
 import tpbp_functions as func_tp
 
 import threading
 
-#Incomplete
+
 class MCTS(threading.Thread):
     def __init__(self, thread_id, algo_class, adj_temp, orig, div_cur, vals_n, future_visit_final, dest):
+
         threading.Thread.__init__(self)
         self.thread_id = thread_id
         self.algo_class = algo_class
@@ -66,7 +67,7 @@ class MCTS(threading.Thread):
                         for n in range(i, self.div_cur + 1):
                             vals_l[j, n] = float(self.div_cur - n)/self.div_cur * (n - i) * self.algo_class.cf 
                             if self.algo_class.nodes[j] in self.algo_class.priority_nodes:
-                                    vals_l[j, n] += float(self.div_cur - n)/self.div_cur * self.algo_class.lambda_priority * min((n - i) * self.algo_class.cf, self.algo_class.time_periods[self.algo_class.priority_nodes.index(self.algo_class.nodes[j])])
+                                    vals_l[j, n] += float(self.div_cur - n)/self.div_cur * self.algo_class.lambda_priority * (n - i) * self.algo_class.cf
                     
                     elif i <= self.div_cur and i * self.algo_class.cf < self.future_visit_final[j]:
                         fut = self.future_visit_final[j]
@@ -77,8 +78,7 @@ class MCTS(threading.Thread):
                         for n in range(i, int(min(np.floor(fut / self.algo_class.cf), self.div_cur + 1))):
                             vals_l[j, n] = float(fut - n * self.algo_class.cf)/(self.algo_class.cf * self.div_cur) * (n - i) * self.algo_class.cf
                             if self.algo_class.nodes[j] in self.algo_class.priority_nodes:
-                                vals_l[j, n] += float(fut - n * self.algo_class.cf)/(self.algo_class.cf * self.div_cur) * self.algo_class.lambda_priority * min((n - i) * self.algo_class.cf, self.algo_class.time_periods[self.algo_class.priority_nodes.index(self.algo_class.nodes[j])])
-
+                                vals_l[j, n] += float(fut - n * self.algo_class.cf)/(self.algo_class.cf * self.div_cur) * self.algo_class.lambda_priority * (n - i) * self.algo_class.cf
 
                     self.vals_n[j, i] = vals_l
                     g_n[j, i] = max_g
@@ -103,9 +103,16 @@ class MCTS(threading.Thread):
         self.walk, self.max_g = walk, max_g
 
 
-class TPBP_Basic:
-    def __init__(self, g, priority_nodes, time_periods, lambda_priority, length_walk, max_div, eps_prob, discount_factor, algo_name, file_path):
-
+class TPBPv1:
+    '''
+    Aithalakadi
+    '''
+    # def __init__(self, g, priority_nodes, time_periods, lambda_priority, length_walk, max_div, eps_prob, discount_factor, algo_name, file_path):
+    def __init__(self, g, priority_nodes, lambda_priority, length_walk, max_div, eps_prob, discount_factor, algo_name, file_path):
+        '''
+        Meow
+        '''
+        self.ready = False
         self.robots = {}
 
         #Hyper-parameters:
@@ -122,7 +129,7 @@ class TPBP_Basic:
             self.graph[edge[0]][edge[1]]['duration'] = self.graph[edge[0]][edge[1]]['length']/self.v_max
 
         self.priority_nodes = priority_nodes
-        self.time_periods = time_periods
+        # self.time_periods = time_periods
         self.plan_time = length_walk   
         self.lambda_priority = lambda_priority
         self.max_div = max_div
@@ -147,8 +154,12 @@ class TPBP_Basic:
         self.t_div = np.zeros([self.N, self.N])
         self.adj_mat_id = -1 * np.ones([self.N, self.N, self.N, self.max_div + 1], dtype = 'int64')
         self.update_adj_matrix('')
+        self.ready = True
 
     def update_adj_matrix(self, event):
+        '''
+        Woof
+        '''
 
         for i in range(self.N):
             orig = self.nodes[i]
@@ -171,7 +182,11 @@ class TPBP_Basic:
                                 self.adj_mat_id[i, l, m, n] = int(n - 1)
             self.adj_mat_id[i, i, i, 0] = 0
 
-    def monte_carlo_sampling(self, orig, len_cur, dest = []):
+    def monte_carlo_sampling(self, orig, len_cur, dest):
+
+        '''
+        Screech
+        '''
         
         g_walk = []
         g_max = 0.
@@ -196,7 +211,8 @@ class TPBP_Basic:
                     if m * self.cf >= future_visit_final[i]:
                         vals_n[orig_id, 0, i, m] = float(div_cur - m)/div_cur * (m * self.cf - future_visit_final[i])
                         if w in self.priority_nodes:
-                            vals_n[orig_id, 0, i, m] += float(div_cur - m)/div_cur * self.lambda_priority * min(m * self.cf - future_visit_final[i], self.time_periods[self.priority_nodes.index(w)])
+                            # vals_n[orig_id, 0, i, m] += float(div_cur - m)/div_cur * self.lambda_priority * min(m * self.cf - future_visit_final[i], self.time_periods[self.priority_nodes.index(w)])
+                            vals_n[orig_id, 0, i, m] += float(div_cur - m)/div_cur * self.lambda_priority * m * (self.cf - future_visit_final[i])
                     
                     else:
                         fut = future_visit_final[i]
@@ -209,7 +225,8 @@ class TPBP_Basic:
 
                         vals_n[orig_id, 0, i, m] = float(fut - m * self.cf)/len_cur * (m * self.cf - bef)
                         if w in self.priority_nodes:
-                            vals_n[orig_id, 0, i, m] += float(fut - m * self.cf)/len_cur * self.lambda_priority * min(m * self.cf - bef, self.time_periods[self.priority_nodes.index(w)])
+                            # vals_n[orig_id, 0, i, m] += float(fut - m * self.cf)/len_cur * self.lambda_priority * min(m * self.cf - bef, self.time_periods[self.priority_nodes.index(w)])
+                            vals_n[orig_id, 0, i, m] += float(fut - m * self.cf)/len_cur * self.lambda_priority * (m * self.cf - bef)
 
         if min(future_visit_final) > len_cur:
             return g_walk, g_max
@@ -270,7 +287,7 @@ class TPBP_Basic:
             next_departs = [t]
             # print ('True Random')
         else:
-            g_walk, _ = self.monte_carlo_sampling(node, self.plan_time)
+            g_walk, _ = self.monte_carlo_sampling(node, self.plan_time, [])
             print (g_walk)
             next_walk = [node]
             next_departs = []
@@ -295,6 +312,13 @@ class TPBP_Basic:
         self.graph.nodes[next_walk[-1]]['future_visits'][bot] = self.plan_time
         return NextTaskBotResponse(next_departs, next_walk)
 
+    def callback_ready(self, req):
+        algo_name = req.algo
+        if algo_name == 'p2a2_v1' and self.ready:
+            return AlgoReadyResponse(True)
+        else:
+            return AlgoReadyResponse(False)
+
 if __name__ == '__main__':
     rospy.init_node('tpbp_v1_thread', anonymous = True)
     dirname = rospkg.RosPack().get_path('mrpp_sumo')
@@ -303,20 +327,37 @@ if __name__ == '__main__':
     g = nx.read_graphml(dirname + '/graph_ml/' + graph_name + '.graphml')
 
     priority_nodes = rospy.get_param('/priority_nodes').split(' ')
-    time_periods = list(map(float, rospy.get_param('/time_periods').split(' ')))
-    lambda_priority = float(rospy.get_param('/lambda_priority'))
-    length_walk = float(rospy.get_param('/length_walk'))
-    max_div = int(rospy.get_param('/max_divisions'))
-    eps_prob = float(rospy.get_param('/eps_prob'))
-    discount_factor = float(rospy.get_param('/discount_factor'))
+    parameters = list(map(float, rospy.get_param('/parameters').split(' ')))
+
+    # time_periods = [parameters[0]] * len(priority_nodes)
+    # time_periods = list(map(float, rospy.get_param('/time_periods').split(' ')))
+    
+    lambda_priority = parameters[0]
+    # lambda_priority = float(rospy.get_param('/lambda_priority'))
+    
+    length_walk = parameters[1]
+    # length_walk = float(rospy.get_param('/length_walk'))
+
+    max_div = int(parameters[2])
+    # max_div = int(rospy.get_param('/max_divisions'))
+
+    eps_prob = 0.1
+    # eps_prob = float(rospy.get_param('/eps_prob'))
+    
+    discount_factor = 0.8
+    # discount_factor = float(rospy.get_param('/discount_factor'))
+    
     algo_name = rospy.get_param('/algo_name')
     file_name = rospy.get_param('/random_string')
     file_path = dirname + '/outputs/{}_command.in'.format(file_name)
-    s = TPBP_Basic(g, priority_nodes, time_periods, lambda_priority, length_walk, max_div, eps_prob, discount_factor, algo_name, file_path)
+
+    s = TPBPv1(g, priority_nodes, lambda_priority, length_walk, max_div, eps_prob, discount_factor, algo_name, file_path)
+    # s = TPBPv1(g, priority_nodes, time_periods, lambda_priority, length_walk, max_div, eps_prob, discount_factor, algo_name, file_path)
 
     rospy.Subscriber('at_node', AtNode, s.callback_idle)
     rospy.Timer(rospy.Duration(50), s.update_adj_matrix)
     rospy.Service('bot_next_task', NextTaskBot, s.callback_next_task)
+    rospy.Service('algo_ready', AlgoReady, s.callback_ready)
 
     done = False
     while not done:

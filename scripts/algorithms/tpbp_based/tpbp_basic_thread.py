@@ -33,10 +33,6 @@ class MCTS(threading.Thread):
         self.dest = dest
         self.div_cur = div_cur
         self.orig_id = self.algo_class.nodes.index(orig)
-        # if orig == '668620103':
-        #     print (self.algo_class.nodes)
-        #     print (self.adj_temp[self.orig_id])
-        
 
     def run(self):
 
@@ -70,6 +66,17 @@ class MCTS(threading.Thread):
                             vals_l[j, n] = (self.algo_class.discount_factor ** n) * (n - i) * self.algo_class.cf 
                             if self.algo_class.nodes[j] in self.algo_class.priority_nodes:
                                     vals_l[j, n] += (self.algo_class.discount_factor ** n) * self.algo_class.lambda_priority * min((n - i) * self.algo_class.cf, self.algo_class.time_periods[self.algo_class.priority_nodes.index(self.algo_class.nodes[j])])
+
+                    elif i <= self.div_cur and i * self.algo_class.cf < self.future_visit_final[j]:
+                        fut = self.future_visit_final[j]
+                        nod = self.algo_class.nodes[j]
+                        for val in list(self.algo_class.graph.nodes[nod]['future_visits'].values()):
+                            if val >  i * self.algo_class.cf and val < fut:
+                                fut = val
+                        for n in range(i, int(min(np.floor(fut / self.algo_class.cf), self.div_cur + 1))):
+                            vals_l[j, n] = float(fut - n * self.algo_class.cf)/(self.algo_class.cf * self.div_cur) * (n - i) * self.algo_class.cf
+                            if self.algo_class.nodes[j] in self.algo_class.priority_nodes:
+                                vals_l[j, n] += float(fut - n * self.algo_class.cf)/(self.algo_class.cf * self.div_cur) * self.algo_class.lambda_priority * min((n - i) * self.algo_class.cf, self.algo_class.time_periods[self.algo_class.priority_nodes.index(self.algo_class.nodes[j])])
 
                     self.vals_n[j, i] = vals_l
                     g_n[j, i] = max_g
@@ -273,23 +280,39 @@ class TPBP_Basic:
         return NextTaskBotResponse(next_departs, next_walk)
 
 if __name__ == '__main__':
-    rospy.init_node('tpbp_basic_thread', anonymous = True)
+    rospy.init_node('tpbp_v1_thread', anonymous = True)
     dirname = rospkg.RosPack().get_path('mrpp_sumo')
     done = False
     graph_name = rospy.get_param('/graph')
     g = nx.read_graphml(dirname + '/graph_ml/' + graph_name + '.graphml')
 
     priority_nodes = rospy.get_param('/priority_nodes').split(' ')
-    time_periods = list(map(float, rospy.get_param('/time_periods').split(' ')))
-    lambda_priority = float(rospy.get_param('/lambda_priority'))
-    length_walk = float(rospy.get_param('/length_walk'))
-    max_div = int(rospy.get_param('/max_divisions'))
-    eps_prob = float(rospy.get_param('/eps_prob'))
-    discount_factor = float(rospy.get_param('/discount_factor'))
+    parameters = list(map(float, ropsy.get_param('/parameters').split(' ')))
+
+    # time_periods = [parameters[0]] * len(priority_nodes)
+    # time_periods = list(map(float, rospy.get_param('/time_periods').split(' ')))
+    
+    lambda_priority = parameters[0]
+    # lambda_priority = float(rospy.get_param('/lambda_priority'))
+    
+    length_walk = parameters[1]
+    # length_walk = float(rospy.get_param('/length_walk'))
+
+    max_div = int(parameters[2])
+    # max_div = int(rospy.get_param('/max_divisions'))
+
+    eps_prob = 0.1
+    # eps_prob = float(rospy.get_param('/eps_prob'))
+    
+    discount_factor = 0.8
+    # discount_factor = float(rospy.get_param('/discount_factor'))
+    
     algo_name = rospy.get_param('/algo_name')
     file_name = rospy.get_param('/random_string')
     file_path = dirname + '/outputs/{}_command.in'.format(file_name)
-    s = TPBP_Basic(g, priority_nodes, time_periods, lambda_priority, length_walk, max_div, eps_prob, discount_factor, algo_name, file_path)
+
+    s = TPBP_Basic(g, priority_nodes, lambda_priority, length_walk, max_div, eps_prob, discount_factor, algo_name, file_path)
+    # s = TPBP_Basic(g, priority_nodes, time_periods, lambda_priority, length_walk, max_div, eps_prob, discount_factor, algo_name, file_path)
 
     rospy.Subscriber('at_node', AtNode, s.callback_idle)
     rospy.Timer(rospy.Duration(50), s.update_adj_matrix)
