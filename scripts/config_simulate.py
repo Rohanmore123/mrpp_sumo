@@ -8,7 +8,7 @@ import rosparam
 
 # missed = [97, 96, 95, 86, 83, 78, 44, 12]
 dir_name = rospkg.RosPack().get_path('mrpp_sumo')
-config_files = glob.glob(dir_name + '/config/ppa_fhum_3_100_5/*.yaml')
+config_files = glob.glob(dir_name + '/config/ppa_fhum_1_100_5/*.yaml')
 count = 0
 for conf in config_files:
 # for i in missed:

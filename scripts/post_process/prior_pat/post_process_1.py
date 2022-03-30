@@ -21,6 +21,9 @@ def main(config_path):
     config_name = config_path.split('/')[-1].split('.')[0]
     with open(config_path, 'r') as f:
         config = yaml.load(f, yaml.FullLoader)
+
+    if config['graph'] != 'grid_5_5':
+        return
     out_str = dir_name + '/outputs/{}/'.format(config['algo_name']) + config['random_string']
     sim_dir = dir_name + '/post_process/{}'.format(config['random_string'])  
     os.mkdir(sim_dir)
