@@ -1,0 +1,2 @@
+use_sim_time,graph,init_bots,init_locations,done,sim_length,random_string,algo_name,avg_idle,max_idle
+True,st_line,2,,False,200000,ane62,11_ses_exp,1876.223675157261,44033.0
