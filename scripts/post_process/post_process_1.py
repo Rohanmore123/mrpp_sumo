@@ -12,6 +12,7 @@ import rospkg
 import yaml
 import networkx as nx
 import pandas as pd
+import csv
 
 def main(config_path):
     '''
@@ -41,51 +42,64 @@ def main(config_path):
 
     cols_n = ['time']
     cols_n.extend(nodes)
-    df1 = pd.DataFrame(columns = cols_n)
+    # df1 = pd.DataFrame(columns = cols_n)
     cols_e = ['time']
     cols_e.extend(edges)
-    df2 = pd.DataFrame(columns = cols_e)
-    
+    # df2 = pd.DataFrame(columns = cols_e)
+
+    all_lines = []    
     with open('{}_visits.in'.format(out_str), 'r') as f:
-        i = 0
-        cur_time = 0
-        cur_data_n = {}
-        cur_data_e = {}
-        for n in df1.columns:
-            cur_data_n[n] = cur_time
-        for e in df2.columns:
-            cur_data_e[e] = cur_time
-        
-        for l in f:
-            i += 1
-            if i % 1000 == 0:
-                print(i, cur_time)
-            if i % 3 == 1:
-                next_time = float(l.strip('\n'))
-                while cur_time < next_time:
-                    # df1 = df1.append(cur_data_n, ignore_index = True)
-                    cdn = pd.DataFrame(cur_data_n, index = ['time'])
-                    df1 = pd.concat([df1, cdn], ignore_index = True)
-                    df1.reset_index()
+        all_lines = f.readlines()
 
-                    # df2 = df2.append(cur_data_e, ignore_index = True)
-                    cde = pd.DataFrame(cur_data_e, index = ['time'])
-                    df2 = pd.concat([df2, cde], ignore_index = True)
-                    df2.reset_index()
+    i = 0
+    cur_time = 0
+    cur_data_n = {}
+    cur_data_e = {}
+    for n in cols_n:
+        cur_data_n[n] = cur_time
+    for e in cols_e:
+        cur_data_e[e] = cur_time
+    
+    with open(sim_dir + '/{}_node.csv'.format(config_name), 'w', newline = '') as f_nodes:
+        with open(sim_dir + '/{}_edge.csv'.format(config_name), 'w', newline = '') as f_edges:
+            node_writer = csv.DictWriter(f_nodes, fieldnames = cols_n)
+            node_writer.writeheader()
+            edge_writer = csv.DictWriter(f_edges, fieldnames = cols_e)
+            edge_writer.writeheader()
+            for l in all_lines:
+                i += 1
+                if i % 1000 == 0:
+                    print(i, cur_time)
+                if i % 3 == 1:
+                    next_time = float(l.strip('\n'))
+                    while cur_time < next_time:
+                        # df1 = df1.append(cur_data_n, ignore_index = True)
+                        # cdn = pd.DataFrame(cur_data_n, index = ['time'])
+                        # df1 = pd.concat([df1, cdn], ignore_index = True)
+                        # df1.reset_index()
+                        node_writer.writerow(cur_data_n)
 
-                    cur_time += 1
-                    cur_data_n['time'] = cur_time
-                    cur_data_e['time'] = cur_time
-                    for n in nodes:
-                        cur_data_n[n] += 1
-                    
-            elif i % 3 == 2:
-                cur_nodes = l.strip('\n').split(' ')
-                for n in cur_nodes:
-                    cur_data_n[n] = 0
-            else:
-                pass
+                        # df2 = df2.append(cur_data_e, ignore_index = True)
+                        # cde = pd.DataFrame(cur_data_e, index = ['time'])
+                        # df2 = pd.concat([df2, cde], ignore_index = True)
+                        # df2.reset_index()
+                        edge_writer.writerow(cur_data_e)
 
+                        cur_time += 1
+                        cur_data_n['time'] = cur_time
+                        cur_data_e['time'] = cur_time
+                        for n in nodes:
+                            cur_data_n[n] += 1
+                        
+                elif i % 3 == 2:
+                    cur_nodes = l.strip('\n').split(' ')
+                    for n in cur_nodes:
+                        cur_data_n[n] = 0
+                else:
+                    pass
+    df1 = pd.read_csv(sim_dir + '/{}_node.csv'.format(config_name))
+    df2 = pd.read_csv(sim_dir + '/{}_edge.csv'.format(config_name))
+    print(df1.columns)
     df1 = df1.set_index('time')
     df2 = df2.set_index('time')
 
@@ -122,7 +136,7 @@ def main(config_path):
         df = pd.concat([df, ta], ignore_index = True)
         # df = df.append(to_add, ignore_index = True)
     df.to_csv(dir_name + '/{}.csv'.format(algo_name), index = False)
-    del df1, df2, df
+    del df1, df2, df 
 
 if __name__ == '__main__':
     main(sys.argv[1])

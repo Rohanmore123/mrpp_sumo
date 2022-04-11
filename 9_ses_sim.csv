@@ -1,0 +1,7 @@
+use_sim_time,graph,init_bots,init_locations,done,sim_length,random_string,algo_name,avg_idle,max_idle
+True,st_line,1,,False,200000,ane49,9_ses_sim,25023.403859250844,110833
+True,st_line,2,,False,200000,ane50,9_ses_sim,12101.918642774484,114896
+True,grid_5_5,2,,False,200000,ane53,9_ses_sim,2234.403550468621,37065
+True,st_line,3,,False,200000,ane51,9_ses_sim,34598.46597265973,196881
+True,grid_5_5,3,,False,200000,ane54,9_ses_sim,1629.1582236423017,45512
+True,grid_5_5,1,,False,200000,ane52,9_ses_sim,15238.544088286184,150836
