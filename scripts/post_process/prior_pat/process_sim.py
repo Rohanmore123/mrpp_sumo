@@ -20,7 +20,7 @@ def main(string):
         print ('{} Done'.format(count))
 
 if __name__ == '__main__':
-    post=['ppa_basic_10_0', 'ppa_basic_10_5']
+    post=['ppa_basic_10_3', 'ppa_basic_100_3']
     # for i in post:
     #     main(i)
     #using 6 cores for processing 
