@@ -20,9 +20,9 @@ def main(string):
         print ('{} Done'.format(count))
 
 if __name__ == '__main__':
-    post=['ppa_basic_10_3', 'ppa_basic_100_3']
-    # for i in post:
-    #     main(i)
+    post=['ppa_basic_0_10_3', 'ppa_basic_0_10_0', 'ppa_basic_0_10_5', 'ppa_basic_0_100_0', 'ppa_basic_0_100_3', 'ppa_basic_0_100_5']
+    for i in post:
+        main(i)
     #using 6 cores for processing 
-    with Pool(3) as p:
-        p.map(main,post)
+    # with Pool(6) as p:
+    #     p.map(main,post)

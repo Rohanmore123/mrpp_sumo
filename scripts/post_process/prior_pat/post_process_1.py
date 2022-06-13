@@ -68,8 +68,8 @@ def main(config_path):
             edge_writer.writeheader()
             for l in all_lines:
                 i += 1
-                if i % 1000 == 0:
-                    print(i, cur_time)
+                # if i % 1000 == 0:
+                    # print(i, cur_time)
                 if i % 3 == 1:
                     next_time = float(l.strip('\n'))
                     while cur_time < next_time:
